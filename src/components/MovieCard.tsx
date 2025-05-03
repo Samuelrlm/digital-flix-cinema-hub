@@ -1,6 +1,7 @@
 
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface MovieProps {
   id: number;
@@ -12,14 +13,23 @@ interface MovieProps {
 }
 
 const MovieCard = ({ id, title, poster, year, rating, genre }: MovieProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/movie/${id}`);
+  };
+
   return (
-    <div className="movie-card group">
+    <div 
+      className="movie-card group relative cursor-pointer transition-transform hover:scale-105"
+      onClick={handleClick}
+    >
       <img 
         src={poster} 
         alt={title} 
-        className="w-full h-[320px] object-cover"
+        className="w-full h-[320px] object-cover rounded-md"
       />
-      <div className="gradient-overlay"></div>
+      <div className="gradient-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent rounded-md"></div>
       <div className="absolute bottom-0 left-0 right-0 p-4">
         <Badge className="mb-2 bg-digitalflix-blue/80 hover:bg-digitalflix-blue">
           {genre}

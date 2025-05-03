@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
 // Combining both movie lists from the homepage
-const allMovies = [
+export const allMovies = [
   {
     id: 1,
     title: "Inception",
