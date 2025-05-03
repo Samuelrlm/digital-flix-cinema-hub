@@ -1,13 +1,13 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import MovieCard from "@/components/MovieCard";
-import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import MovieCard from "@/components/MovieCard";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
-// Sample data for our movies
-const featuredMovies = [
+// Combining both movie lists from the homepage
+const allMovies = [
   {
     id: 1,
     title: "Inception",
@@ -39,10 +39,7 @@ const featuredMovies = [
     year: 1994,
     rating: 8.9,
     genre: "Crime"
-  }
-];
-
-const latestMovies = [
+  },
   {
     id: 5,
     title: "The Shawshank Redemption",
@@ -77,40 +74,47 @@ const latestMovies = [
   }
 ];
 
-const HomePage = () => {
+const MoviesPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const filteredMovies = allMovies.filter(movie => 
+    movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.genre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <HeroSection />
+      
+      <header className="bg-card py-12">
+        <div className="container">
+          <h1 className="text-3xl font-bold mb-2">All Movies</h1>
+          <p className="text-gray-400 mb-6">Browse our collection of amazing movies</p>
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search movies by title or genre..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
       
       <main className="flex-1 container py-12">
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Featured Movies</h2>
-            <Link to="/movies" className="text-digitalflix-blue hover:text-digitalflix-blue/80 text-sm font-medium">
-              View All
-            </Link>
-          </div>
+        {filteredMovies.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredMovies.map((movie) => (
+            {filteredMovies.map((movie) => (
               <MovieCard key={movie.id} {...movie} />
             ))}
           </div>
-        </section>
-        
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Latest Additions</h2>
-            <Link to="/movies" className="text-digitalflix-blue hover:text-digitalflix-blue/80 text-sm font-medium">
-              View All
-            </Link>
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-medium text-gray-400">No movies found matching your search</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {latestMovies.map((movie) => (
-              <MovieCard key={movie.id} {...movie} />
-            ))}
-          </div>
-        </section>
+        )}
       </main>
       
       <Footer />
@@ -118,4 +122,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default MoviesPage;
