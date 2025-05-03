@@ -14,7 +14,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Film, Image } from "lucide-react";
+import { Film, Image, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const genres = [
@@ -33,7 +33,8 @@ const AddMoviePage = () => {
     director: "",
     genre: "",
     rating: 5.0,
-    posterUrl: ""
+    posterUrl: "",
+    minutes: 120 // Added default value for minutes
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,44 +122,67 @@ const AddMoviePage = () => {
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="director">Director</Label>
-              <Input
-                id="director"
-                name="director"
-                placeholder="Director's name"
-                value={formData.director}
-                onChange={handleChange}
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="director">Director</Label>
+                <Input
+                  id="director"
+                  name="director"
+                  placeholder="Director's name"
+                  value={formData.director}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="minutes">Duration (minutes)</Label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="minutes"
+                    name="minutes"
+                    type="number"
+                    min="1"
+                    max="999"
+                    className="pl-10"
+                    placeholder="Movie duration in minutes"
+                    value={formData.minutes}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="rating">Rating (0-10)</Label>
-              <Input
-                id="rating"
-                name="rating"
-                type="number"
-                min="0"
-                max="10"
-                step="0.1"
-                placeholder="Rating out of 10"
-                value={formData.rating}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="posterUrl">Movie Poster URL</Label>
-              <Input
-                id="posterUrl"
-                name="posterUrl"
-                placeholder="Enter URL to movie poster image"
-                value={formData.posterUrl}
-                onChange={handleChange}
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="rating">Rating (0-10)</Label>
+                <Input
+                  id="rating"
+                  name="rating"
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  placeholder="Rating out of 10"
+                  value={formData.rating}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="posterUrl">Movie Poster URL</Label>
+                <Input
+                  id="posterUrl"
+                  name="posterUrl"
+                  placeholder="Enter URL to movie poster image"
+                  value={formData.posterUrl}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
             
             <div className="space-y-2">
