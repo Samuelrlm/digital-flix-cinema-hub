@@ -13,7 +13,7 @@ const HeroSection = () => {
       />
       <div className="absolute inset-0 z-20 container flex flex-col justify-center">
         <div className="max-w-xl animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">Welcome to <span className="text-digitalflix-purple">DigitalFlix</span></h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">Welcome to <span className="text-digitalflix-purple">FLY Flix</span></h1>
           <p className="text-lg text-gray-200 mb-8">
             Discover the best movies all in one place. Stream now, enjoy unlimited entertainment.
           </p>

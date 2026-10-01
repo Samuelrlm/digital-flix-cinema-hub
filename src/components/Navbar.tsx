@@ -10,7 +10,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           <Film className="h-6 w-6 text-digitalflix-purple" />
           <Link to="/" className="text-xl font-bold text-digitalflix-light">
-            Digital<span className="text-digitalflix-purple">Flix</span>
+            FLY<span className="text-digitalflix-purple">Flix</span>
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-6">

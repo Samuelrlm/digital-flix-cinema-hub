@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <Film className="h-5 w-5 text-digitalflix-purple" />
             <span className="text-lg font-bold">
-              Digital<span className="text-digitalflix-purple">Flix</span>
+              FLY<span className="text-digitalflix-purple">Flix</span>
             </span>
           </div>
           
@@ -27,7 +27,7 @@ const Footer = () => {
           </div>
           
           <div className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} DigitalFlix. All rights reserved.
+            © {new Date().getFullYear()} FLY Flix. All rights reserved.
           </div>
         </div>
       </div>
