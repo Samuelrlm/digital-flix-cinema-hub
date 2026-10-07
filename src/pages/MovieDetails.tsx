@@ -6,44 +6,89 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, Clock, ArrowLeft } from "lucide-react";
-import { 
+import { Star, Clock, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import {
   Card,
   CardContent,
-  CardDescription, 
-  CardFooter,
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import { allMovies } from "./Movies";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { useMovies } from "@/context/MovieContext";
+
+const genres = [
+  "Action", "Adventure", "Animation", "Comedy", "Crime",
+  "Documentary", "Drama", "Fantasy", "Horror", "Mystery",
+  "Romance", "Sci-Fi", "Thriller", "Western"
+];
+
+interface EditForm {
+  title: string;
+  year: string;
+  genre: string;
+  director: string;
+  minutes: string;
+  rating: string;
+  poster: string;
+  description: string;
+}
 
 const MovieDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [movie, setMovie] = useState<any>(null);
+  const { movies, updateMovie, deleteMovie } = useMovies();
+
+  const movie = movies.find(m => m.id === Number(id));
+
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm | null>(null);
 
   useEffect(() => {
-    // In a real app, this would be an API call
-    // For now, we're using the static movie data
-    const foundMovie = allMovies.find(m => m.id === Number(id));
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      if (foundMovie) {
-        setMovie(foundMovie);
-      } else {
-        toast({
-          title: "Movie not found",
-          description: "Sorry, we couldn't find the movie you're looking for.",
-          variant: "destructive"
-        });
-        navigate("/movies");
-      }
-      setLoading(false);
-    }, 500);
-  }, [id, navigate, toast]);
+    // Simulate loading delay for a smoother transition
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !movie) {
+      toast({
+        title: "Movie not found",
+        description: "Sorry, we couldn't find the movie you're looking for.",
+        variant: "destructive"
+      });
+      navigate("/movies");
+    }
+  }, [loading, movie, navigate, toast]);
 
   if (loading) {
     return (
@@ -58,46 +103,92 @@ const MovieDetails = () => {
   }
 
   if (!movie) {
-    return null; // This shouldn't happen due to navigation in useEffect
+    return null; // Handled by navigation in useEffect
   }
 
-  // Additional movie details that would come from a real API
-  const details = {
-    description: "This is a placeholder description for the movie. In a real application, this would contain a detailed synopsis of the movie's plot.",
-    director: "Director Name",
-    cast: ["Actor 1", "Actor 2", "Actor 3"],
-    duration: "120 minutes"
+  const openEditModal = () => {
+    setEditForm({
+      title: movie.title,
+      year: String(movie.year),
+      genre: movie.genre,
+      director: movie.director ?? "",
+      minutes: movie.minutes ? String(movie.minutes) : "",
+      rating: String(movie.rating),
+      poster: movie.poster,
+      description: movie.description ?? ""
+    });
+    setEditOpen(true);
   };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditForm(prev => (prev ? { ...prev, [name]: value } : prev));
+  };
+
+  const handleEditSelect = (value: string) => {
+    setEditForm(prev => (prev ? { ...prev, genre: value } : prev));
+  };
+
+  const handleEditSave = () => {
+    if (!editForm) return;
+    updateMovie(movie.id, {
+      title: editForm.title,
+      year: Number(editForm.year) || movie.year,
+      genre: editForm.genre,
+      director: editForm.director,
+      minutes: Number(editForm.minutes) || movie.minutes,
+      rating: Number(editForm.rating) || movie.rating,
+      poster: editForm.poster,
+      description: editForm.description
+    });
+    setEditOpen(false);
+    toast({
+      title: "Movie Updated",
+      description: `${editForm.title} has been successfully updated.`
+    });
+  };
+
+  const handleDelete = () => {
+    deleteMovie(movie.id);
+    setDeleteOpen(false);
+    toast({
+      title: "Movie Deleted",
+      description: `${movie.title} has been removed from the collection.`
+    });
+    navigate("/movies");
+  };
+
+  const duration = movie.minutes ? `${movie.minutes} minutes` : "120 minutes";
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1">
         {/* Hero section with movie backdrop */}
         <div className="relative h-[50vh] bg-gradient-to-b from-black/60 to-background">
-          <img 
-            src={movie.poster} 
-            alt={movie.title} 
+          <img
+            src={movie.poster}
+            alt={movie.title}
             className="absolute inset-0 w-full h-full object-cover -z-10"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-          
+
           <div className="container relative h-full flex flex-col justify-end pb-6">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="absolute top-6 left-6 bg-black/30 hover:bg-black/50 text-white border-white/20 w-fit mb-4"
               onClick={() => navigate(-1)}
             >
               <ArrowLeft className="mr-1 h-4 w-4" />
               Back
             </Button>
-            
+
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <img 
-                src={movie.poster} 
-                alt={movie.title} 
+              <img
+                src={movie.poster}
+                alt={movie.title}
                 className="rounded-md w-full max-w-[200px] h-auto shadow-xl hidden md:block"
               />
               <div>
@@ -113,14 +204,14 @@ const MovieDetails = () => {
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-5 w-5 mr-1" />
-                    <span>{details.duration}</span>
+                    <span>{duration}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Movie details section */}
         <div className="container py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -130,31 +221,23 @@ const MovieDetails = () => {
                   <CardTitle>Synopsis</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>{details.description}</p>
+                  <p>{movie.description || "No synopsis available for this movie yet."}</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>Cast & Crew</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="mb-4">
-                    <h3 className="font-semibold mb-2">Director</h3>
-                    <p>{details.director}</p>
-                  </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Cast</h3>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {details.cast.map((actor, index) => (
-                        <li key={index}>{actor}</li>
-                      ))}
-                    </ul>
+                    <h3 className="font-semibold mb-2">Director</h3>
+                    <p>{movie.director || "Unknown"}</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
-            
+
             <div>
               <Card>
                 <CardHeader>
@@ -172,7 +255,7 @@ const MovieDetails = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-muted-foreground">Duration</h3>
-                      <p>{details.duration}</p>
+                      <p>{duration}</p>
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-muted-foreground">Rating</h3>
@@ -184,19 +267,188 @@ const MovieDetails = () => {
                   </div>
                 </CardContent>
               </Card>
-              
-              <div className="mt-6">
-                <Button 
+
+              <div className="mt-6 space-y-3">
+                <Button
                   className="w-full bg-digitalflix-purple hover:bg-digitalflix-purple/90"
+                  onClick={openEditModal}
                 >
-                  Add to Favorites
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Movie
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Movie
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </main>
-      
+
+      {/* Edit Movie Modal */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Movie</DialogTitle>
+            <DialogDescription>
+              Update the information for "{movie.title}".
+            </DialogDescription>
+          </DialogHeader>
+
+          {editForm && (
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleEditSave();
+              }}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Movie Title</Label>
+                <Input
+                  id="edit-title"
+                  name="title"
+                  value={editForm.title}
+                  onChange={handleEditChange}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-year">Release Year</Label>
+                  <Input
+                    id="edit-year"
+                    name="year"
+                    type="number"
+                    min="1900"
+                    max={new Date().getFullYear() + 5}
+                    value={editForm.year}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-genre">Genre</Label>
+                  <Select value={editForm.genre} onValueChange={handleEditSelect}>
+                    <SelectTrigger id="edit-genre">
+                      <SelectValue placeholder="Select genre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genres.map((genre) => (
+                        <SelectItem key={genre} value={genre}>
+                          {genre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-director">Director</Label>
+                  <Input
+                    id="edit-director"
+                    name="director"
+                    value={editForm.director}
+                    onChange={handleEditChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-minutes">Duration (minutes)</Label>
+                  <Input
+                    id="edit-minutes"
+                    name="minutes"
+                    type="number"
+                    min="1"
+                    max="999"
+                    value={editForm.minutes}
+                    onChange={handleEditChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-rating">Rating (0-10)</Label>
+                  <Input
+                    id="edit-rating"
+                    name="rating"
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    value={editForm.rating}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-poster">Poster URL</Label>
+                  <Input
+                    id="edit-poster"
+                    name="poster"
+                    value={editForm.poster}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  name="description"
+                  rows={4}
+                  value={editForm.description}
+                  onChange={handleEditChange}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-digitalflix-purple hover:bg-digitalflix-purple/90">
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{movie.title}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The movie will be permanently removed from the collection.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={handleDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Footer />
     </div>
   );
