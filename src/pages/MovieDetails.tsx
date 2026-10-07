@@ -42,7 +42,6 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { useMovies } from "@/context/MovieContext";
-import type { Movie } from "@/data/movies";
 
 const genres = [
   "Action", "Adventure", "Animation", "Comedy", "Crime",
